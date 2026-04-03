@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//^```typescript/{in_block=1; next} /^```$/**)"
+    ]
+  }
+}
