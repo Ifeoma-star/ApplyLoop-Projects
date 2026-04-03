@@ -8,7 +8,7 @@ Hard
 
 ---
 
-## Reasoning
+## Rubric Evaluation
 
 | ID | Description | Weight | Rationale | Dependent On |
 |---|---|---|---|---|
@@ -22,13 +22,6 @@ Hard
 | reasoning-8 | Explains that `AsyncContext` carries per-request contextual data and is passed as a second argument to `mergeObjectContext()` so that events committed by the aggregate are tagged with that request's context, enabling downstream scoped handlers to operate within the same request scope | critical | Depends on reasoning-7 because `AsyncContext` only exists and matters in request-scoped handlers. Without understanding `Scope.REQUEST` first, the purpose of `AsyncContext` cannot be correctly explained. | reasoning-7 |
 | reasoning-9 | Explains that `AsyncContext.merge(event, command)` copies the async context from the incoming event onto the new command so that when the `CommandBus` dispatches it, the scoped handler receives the same request context that originated the event | critical | Depends on reasoning-8 because `AsyncContext.merge` is only meaningful once it is clear what `AsyncContext` holds and why it needs to travel with the command across the saga boundary. | reasoning-8 |
 | reasoning-10 | Notes that the `// logic` comment in `killEnemy()` and `addItem()` is a placeholder for in-memory state mutation on the aggregate, and that the apply/commit pattern is identical whether the command was triggered by a direct user request or by a saga | bonus | Depends on reasoning-3 because recognising the `// logic` placeholder requires already understanding what `apply()` does. Bonus because it shows deeper reading of the code rather than just answering the stated questions. | reasoning-3 |
-
----
-
-## Completeness
-
-| ID | Description | Weight | Rationale | Dependent On |
-|---|---|---|---|---|
 | completeness-1 | Answers what `@CommandHandler` does at the framework level and how `CommandBus` knows which handler to invoke for a given command | critical | Directly asked in the prompt. A response that skips this leaves the developer's first question unanswered. | |
 | completeness-2 | Answers what `mergeObjectContext` does to the hero instance and why `AggregateRoot.publish()` alone is not sufficient to deliver events to the `EventBus` | critical | Directly asked in the prompt. This is the most technically nuanced question and must be addressed completely. | |
 | completeness-3 | Answers how `HeroesGameSagas` receives events and what happens to the `DropAncientItemCommand` returned from the `map` operator | critical | Directly asked in the prompt. Both halves of this question — how events arrive and what happens to the returned command — must be covered. | |
@@ -36,23 +29,9 @@ Hard
 | completeness-5 | Answers what `Scope.REQUEST` does to the handler's lifecycle compared to the default singleton scope | critical | Directly asked in the prompt. Must contrast request-scoped with singleton — stating one without the other is insufficient. | |
 | completeness-6 | Answers what `AsyncContext` is and why it is injected and passed through `mergeObjectContext` in the scoped handlers | critical | Directly asked in the prompt. A response that only names `AsyncContext` without explaining what it carries and why it is necessary is incomplete. | |
 | completeness-7 | Answers what `AsyncContext.merge(event, command)` does in the scoped saga and why there is no equivalent call in the regular `HeroesGameSagas` | critical | Directly asked in the prompt. The contrast between the scoped and regular saga is the key insight — answering only one side does not satisfy the question. | |
-
----
-
-## Style
-
-| ID | Description | Weight | Rationale | Dependent On |
-|---|---|---|---|---|
 | style-1 | Response contains no standalone code blocks — only inline code references such as `apply()`, `AsyncContext`, or `mergeObjectContext()` are acceptable | critical | Code Onboarding golden answers must be plain-language walkthroughs. Standalone code blocks indicate the model is writing a tutorial rather than explaining existing code. | |
 | style-2 | Response uses plain instructor-to-new-developer language and does not suggest changes or improvements to any of the provided code files | critical | The prompt is a comprehension task, not a review. Suggestions signal the model has misread the intent category. | |
 | style-3 | Explanation traces the full end-to-end runtime flow in sequence: command dispatch → handler → aggregate → commit → EventBus → saga → new command → handler, for both the regular and scoped variants | bonus | Bonus because tracing the full dual-path flow shows exceptional comprehension beyond just answering each question in isolation. | |
-
----
-
-## Penalty
-
-| ID | Description | Weight | Rationale | Dependent On |
-|---|---|---|---|---|
 | penalty-1 | States that `apply()` immediately publishes or dispatches the event to the `EventBus` at the moment it is called | penalty | Factually wrong and propagates a fundamental misunderstanding of the staging/commit lifecycle to the new developer. | |
 | penalty-2 | States that `publish()` or `publishAll()` on `AggregateRoot` route events to the `EventBus` without mentioning that `mergeObjectContext()` must first patch those methods on the instance | penalty | Omitting the patching step gives the developer a broken mental model — they will write code expecting events to flow without ever calling `mergeObjectContext()`. | |
 | penalty-3 | States that `CqrsModule` must be explicitly imported in each feature module for its providers to be available to that module's handlers | penalty | Directly contradicts how `CqrsModule.forRoot()` global scoping works and will mislead the developer into adding unnecessary imports. | |
