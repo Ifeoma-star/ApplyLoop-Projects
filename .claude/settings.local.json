@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Read(//^```typescript/{in_block=1; next} /^```$/**)"
+      "Read(//^```typescript/{in_block=1; next} /^```$/**)",
+      "Read(//c/Users/Naomi/.claude/projects/c--Users-Naomi-OneDrive-Desktop-ApplyLoop-Project-5/memory/**)"
     ]
   }
 }
